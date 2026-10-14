@@ -1,38 +1,13 @@
 /**
  * ============================================================================
  * TRISHLACOZY - LUXURY BLANKET BRAND WEBSITE
- * Master JavaScript File (Interactions, Animations & Google Sheets Integration)
+ * ============================================================================
+ *
+ * Enquiries are emailed to info@trishlacozy.com.
  * ============================================================================
  */
 
-/* ============================================================================
-   GOOGLE APPS SCRIPT CONFIGURATION FOR GOOGLE SHEETS
-   ============================================================================
-   INSTRUCTIONS TO CONNECT FORM TO GOOGLE SHEETS:
-   1. Open Google Sheets -> Extensions -> Apps Script.
-   2. Paste the following Apps Script snippet:
-      
-      function doPost(e) {
-        var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-        var data = JSON.parse(e.postData.contents);
-        sheet.appendRow([
-          new Date(),
-          data.name,
-          data.phone,
-          data.email,
-          data.city,
-          data.business,
-          data.message
-        ]);
-        return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
-                             .setMimeType(ContentService.MimeType.JSON);
-      }
-
-   3. Click "Deploy" -> "New deployment" -> Select "Web app".
-   4. Set "Execute as": "Me", and "Who has access": "Anyone".
-   5. Copy the Web App URL and paste it into the variable below!
-   ============================================================================ */
-
+const ENQUIRY_INBOX = "info@trishlacozy.com";
 const GOOGLE_APPS_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -84,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 3. INTERSECTION OBSERVER FOR SCROLL REVEALS
-  const revealElements = document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right, .reveal-zoom');
+  const revealElements = document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right');
 
   const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
@@ -132,34 +107,180 @@ document.addEventListener('DOMContentLoaded', () => {
     statsObserver.observe(statsSection);
   }
 
-  // 5. COLLECTION FILTERING SYSTEM
+  // 5. COLLECTION CAROUSEL + FILTERING
   const filterBtns = document.querySelectorAll('.filter-btn');
-  const collectionItems = document.querySelectorAll('.collection-item');
+  const collectionCarouselEl = document.getElementById('collectionCarousel');
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  const COLLECTION_CATALOG = [
+    { category: 'winter', title: 'Royal Arctic Heavyweight', img: 'images/collection-winter.png', badge: 'Best Seller', desc: 'Ultra-dense dual layer fleece engineered for deep winter comfort.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King Bedding', spec: 'Non-shedding, 100% Hypoallergenic' },
+    { category: 'winter', title: 'Terracotta Hearth Winter', img: 'images/soft-05.png', badge: 'Winter Colour', desc: 'A rich rust winter kambal with dense GSM and a classic hearth-side look.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Deep winter warmth' },
+    { category: 'winter', title: 'Navy Arctic Quilt', img: 'images/cat-winter-navy.png', badge: 'Classic Navy', desc: 'Heavyweight navy fleece for classic cold-night bedrooms.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Rich navy colour' },
+    { category: 'winter', title: 'Burgundy Hearth', img: 'images/cat-winter-burgundy.png', badge: 'Wine Red', desc: 'Deep burgundy winter kambal with a royal heritage colour.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Classic wine tone' },
+    { category: 'winter', title: 'Forest Winter Cloak', img: 'images/cat-winter-forest.png', badge: 'Forest Green', desc: 'Deep forest green heavyweight for cabin-warm winter nights.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Dense green pile' },
+    { category: 'winter', title: 'Royal Plum Winter', img: 'images/cat-winter-plum.png', badge: 'Plum', desc: 'Royal plum heavyweight with a classic palace colour.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Jewel plum tone' },
+    { category: 'winter', title: 'Teal Glacier', img: 'images/cat-winter-teal.png', badge: 'Teal', desc: 'Deep teal winter fleece with a cool classic colour.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Cool teal finish' },
+    { category: 'winter', title: 'Chocolate Lodge', img: 'images/cat-winter-chocolate.png', badge: 'Chocolate', desc: 'Rich chocolate winter kambal for lodge-style bedrooms.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Warm brown pile' },
+    { category: 'winter', title: 'Crimson Ember', img: 'images/cat-winter-crimson.png', badge: 'Crimson', desc: 'Classic crimson heavyweight that glows like an ember.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Bold winter red' },
+    { category: 'winter', title: 'Ochre Harvest', img: 'images/cat-winter-ochre.png', badge: 'Ochre', desc: 'Mustard-ochre winter kambal with a classic harvest colour.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Gold-ochre warmth' },
 
-      const filterValue = btn.getAttribute('data-filter');
+    { category: 'mink', title: 'Silken Velvet Mink', img: 'images/collection-mink.png', badge: 'Velvet Finish', desc: 'High-lustre plush mink weave with silky smooth touch and rich sheen.', gsm: '550 GSM Silk-Touch', fabric: '100% Micro-Plush Mink', sizes: 'Single, Double & Wholesale Rolls', spec: 'Rich colour depth & luster' },
+    { category: 'mink', title: 'Blush Rose Mink', img: 'images/soft-02.png', badge: 'Blush', desc: 'A pure rose mink weave with a quiet sheen and cloud-soft handfeel.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Classic blush finish' },
+    { category: 'mink', title: 'Mint Floral Mink', img: 'images/soft-10.png', badge: 'Mint Floral', desc: 'Mint and cream embossed floral mink with a silky plush pile.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Embossed floral sheen' },
+    { category: 'mink', title: 'Lavender Silk Mink', img: 'images/soft-06.png', badge: 'Lavender', desc: 'Light lilac mink with a velvety pile and classic colourful finish.', gsm: '530 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Soft lilac sheen' },
+    { category: 'mink', title: 'Champagne Mink', img: 'images/cat-mink-champagne.png', badge: 'Champagne', desc: 'Glossy champagne mink with a golden silk-touch sheen.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Gold champagne glow' },
+    { category: 'mink', title: 'Wine Velvet Mink', img: 'images/cat-mink-wine.png', badge: 'Wine', desc: 'Deep wine mink with a high-lustre classic colour.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Rich wine sheen' },
+    { category: 'mink', title: 'Caramel Mink', img: 'images/cat-mink-caramel.png', badge: 'Caramel', desc: 'Warm caramel mink with a silky classic brown finish.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Caramel silk pile' },
+    { category: 'mink', title: 'Mauve Mink', img: 'images/cat-mink-mauve.png', badge: 'Mauve', desc: 'Dusty mauve mink with a quiet jewel sheen.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Mauve velvet finish' },
+    { category: 'mink', title: 'Emerald Mink', img: 'images/cat-mink-emerald.png', badge: 'Emerald', desc: 'Jewel emerald mink with a glossy classic colour.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Emerald luster' },
+    { category: 'mink', title: 'Sapphire Mink', img: 'images/cat-mink-sapphire.png', badge: 'Sapphire', desc: 'Royal sapphire mink with a deep silk-blue sheen.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Sapphire sheen' },
 
-      collectionItems.forEach(item => {
-        if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-          item.style.display = 'block';
-          setTimeout(() => {
-            item.style.opacity = '1';
-            item.style.transform = 'scale(1)';
-          }, 50);
-        } else {
-          item.style.opacity = '0';
-          item.style.transform = 'scale(0.9)';
-          setTimeout(() => {
-            item.style.display = 'none';
-          }, 300);
+    { category: 'luxury', title: 'Imperial Cashmere Touch', img: 'images/collection-cashmere.png', badge: 'Luxury Signature', desc: 'Flagship high-GSM blanket crafted for opulent warmth and royal aesthetics.', gsm: '700 GSM Sovereign', fabric: 'Cashmere Blend Micro-Weave', sizes: 'King & Super King', spec: 'Hand-finished satin border' },
+    { category: 'luxury', title: 'Mustard Gold Sovereign', img: 'images/soft-08.png', badge: 'Royal Gold', desc: 'A colourful classic gold kambal with a sovereign-grade pile.', gsm: '680 GSM Sovereign', fabric: 'Silk-Mink Blend', sizes: 'King & Super King', spec: 'Gold satin glow' },
+    { category: 'luxury', title: 'Ivory Cashmere Cloud', img: 'images/soft-01.png', badge: 'Ivory', desc: 'Cream ivory cashmere-touch folded for a quiet luxury bedroom.', gsm: '690 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Ivory satin pile' },
+    { category: 'luxury', title: 'Camel Sovereign', img: 'images/soft-11.png', badge: 'Camel', desc: 'Warm camel cashmere-touch draped across a classic master bed.', gsm: '680 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Camel heritage tone' },
+    { category: 'luxury', title: 'Ivory Satin Border', img: 'images/cat-lux-ivory.png', badge: 'Satin Ivory', desc: 'Ivory cashmere-touch with a refined satin border.', gsm: '700 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Satin-finished edge' },
+    { category: 'luxury', title: 'Camel Palace', img: 'images/cat-lux-camel.png', badge: 'Camel', desc: 'Classic camel cashmere-touch for palace-style bedrooms.', gsm: '690 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Warm camel satin' },
+    { category: 'luxury', title: 'Royal Purple Cashmere', img: 'images/cat-lux-royal.png', badge: 'Royal Purple', desc: 'Royal purple cashmere-touch with a gold satin border.', gsm: '700 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Jewel purple finish' },
+    { category: 'luxury', title: 'Bronze Sovereign', img: 'images/cat-lux-bronze.png', badge: 'Bronze', desc: 'Warm bronze cashmere-touch with a classic metallic glow.', gsm: '680 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Bronze satin sheen' },
+    { category: 'luxury', title: 'Merlot Cashmere', img: 'images/cat-lux-merlot.png', badge: 'Merlot', desc: 'Deep merlot cashmere-touch for a royal colourful bedroom.', gsm: '690 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Merlot satin pile' },
+    { category: 'luxury', title: 'Sand Cashmere', img: 'images/cat-lux-sand.png', badge: 'Sand', desc: 'Warm sand cashmere-touch with a quiet luxury finish.', gsm: '680 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Sand satin border' },
+
+    { category: 'hotel', title: '5-Star Hospitality Suite', img: 'images/collection-hotel.png', badge: 'Hospitality Grade', desc: 'Crisp ivory thermal blanket optimized for luxury hotel bed setups.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes & Bulk OEM', spec: '200+ wash cycle warranty' },
+    { category: 'hotel', title: 'Sky Hotel Quilt', img: 'images/soft-04.png', badge: 'Hotel Blue', desc: 'Soft sky quilted hospitality blanket on a crisp hotel bed.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Quilted hotel finish' },
+    { category: 'hotel', title: 'Ivory Suite Fold', img: 'images/cat-hotel-ivory.png', badge: 'Ivory', desc: 'Crisp ivory hotel blanket folded at the foot of a 5-star bed.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Laundry-tested ivory' },
+    { category: 'hotel', title: 'Taupe Hospitality', img: 'images/cat-hotel-taupe.png', badge: 'Taupe', desc: 'Warm taupe hotel blanket for classic suite styling.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Taupe hotel tone' },
+    { category: 'hotel', title: 'Sand Suite', img: 'images/cat-hotel-sand.png', badge: 'Sand', desc: 'Warm sand hospitality blanket for bright hotel rooms.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Sand suite colour' },
+    { category: 'hotel', title: 'Dove Grey Hotel', img: 'images/cat-hotel-grey.png', badge: 'Dove Grey', desc: 'Dove grey hospitality blanket with a clean 5-star look.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Grey hotel finish' },
+    { category: 'hotel', title: 'Champagne Suite', img: 'images/cat-hotel-champagne.png', badge: 'Champagne', desc: 'Champagne gold hotel blanket for premium suites.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Champagne hospitality' },
+    { category: 'hotel', title: 'Slate Hotel', img: 'images/cat-hotel-slate.png', badge: 'Slate Blue', desc: 'Slate blue hospitality blanket for modern hotel rooms.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Slate suite colour' },
+    { category: 'hotel', title: 'Sage Hotel', img: 'images/cat-hotel-sage.png', badge: 'Sage', desc: 'Soft sage hospitality blanket for calm 5-star rooms.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Sage hotel tone' },
+    { category: 'hotel', title: 'Rust Suite Accent', img: 'images/cat-hotel-rust.png', badge: 'Rust', desc: 'Terracotta rust hotel blanket for colourful suite accents.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Rust hospitality colour' },
+
+    { category: 'kids', title: 'Cloud-Soft Nursery & Kids', img: 'images/collection-kids.png', badge: 'Sensitive Skin Safe', desc: 'Hypoallergenic breathable blanket designed for infants and gentle nursery care.', gsm: '380 GSM Soft Touch', fabric: 'Zero-Chemical Organic Micro-Fleece', sizes: 'Crib, Nursery & Single', spec: 'Hypoallergenic, gentle on skin' },
+    { category: 'kids', title: 'Peach Nursery Garden', img: 'images/soft-07.png', badge: 'Peach Print', desc: 'Peach and cream nursery fleece with a gentle classic print.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Soft peach nursery' },
+    { category: 'kids', title: 'Sky Stripe Cloud', img: 'images/soft-12.png', badge: 'Sky Stripe', desc: 'Sky blue and cream stripe kids fleece with a cloud-soft pile.', gsm: '380 GSM Soft Touch', fabric: 'Organic Micro-Fleece', sizes: 'Crib, Nursery & Single', spec: 'Sky-cream stripes' },
+    { category: 'kids', title: 'Mint Cloud Crib', img: 'images/cat-kids-mint.png', badge: 'Mint', desc: 'Mint green nursery blanket for a fresh classic crib.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Mint cloud touch' },
+    { category: 'kids', title: 'Lemon Nursery', img: 'images/cat-kids-lemon.png', badge: 'Lemon', desc: 'Soft lemon yellow kids blanket for a sunny nursery.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Gentle lemon colour' },
+    { category: 'kids', title: 'Blush Crib Cloud', img: 'images/cat-kids-blush.png', badge: 'Blush', desc: 'Blush pink nursery blanket, featherlight and skin-safe.', gsm: '380 GSM Soft Touch', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Blush nursery tone' },
+    { category: 'kids', title: 'Lavender Kids Cloud', img: 'images/cat-kids-lavender.png', badge: 'Lavender', desc: 'Soft lavender kids blanket for a calm classic nursery.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Lavender cloud pile' },
+    { category: 'kids', title: 'Sky Nursery', img: 'images/cat-kids-sky.png', badge: 'Sky', desc: 'Sky blue kids blanket for a bright nursery crib.', gsm: '380 GSM Soft Touch', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Sky cloud finish' },
+    { category: 'kids', title: 'Peach Cloud', img: 'images/cat-kids-peach.png', badge: 'Peach', desc: 'Warm peach kids blanket with a gentle nursery colour.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Peach soft-touch' },
+    { category: 'kids', title: 'Coral Nursery', img: 'images/cat-kids-coral.png', badge: 'Coral', desc: 'Coral pink kids blanket for a colourful classic crib.', gsm: '380 GSM Soft Touch', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Coral nursery colour' },
+
+    { category: 'throws', title: 'Living Space Knitted Throw', img: 'images/collection-throw.png', badge: 'Interior Decor', desc: 'Chic fringe-edged accent throw that adds aesthetic warmth to a lounge.', gsm: '420 GSM Knit', fabric: 'Artisanal Acrylic-Cotton Blend', sizes: '130cm x 170cm Throw Size', spec: 'Classic living colours' },
+    { category: 'throws', title: 'Sage Garden Throw', img: 'images/soft-03.png', badge: 'Sage', desc: 'A calm sage knit throw that adds classic colour to sofas and lounges.', gsm: '410 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Soft sage tone' },
+    { category: 'throws', title: 'Terracotta Popcorn Knit', img: 'images/soft-09.png', badge: 'Terracotta', desc: 'Chunky terracotta knit throw draped on a classic living sofa.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Popcorn knit texture' },
+    { category: 'throws', title: 'Mustard Living Throw', img: 'images/cat-throw-mustard.png', badge: 'Mustard', desc: 'Mustard yellow knitted throw with fringe for colourful sofas.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Classic mustard knit' },
+    { category: 'throws', title: 'Teal Lounge Throw', img: 'images/cat-throw-teal.png', badge: 'Teal', desc: 'Teal knitted throw for a colourful living room accent.', gsm: '410 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Teal fringe knit' },
+    { category: 'throws', title: 'Rust Sofa Throw', img: 'images/cat-throw-rust.png', badge: 'Rust', desc: 'Rust terracotta knitted throw for classic sofa styling.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Rust living colour' },
+    { category: 'throws', title: 'Indigo Knit Throw', img: 'images/cat-throw-indigo.png', badge: 'Indigo', desc: 'Indigo blue knitted throw with a classic fringe edge.', gsm: '410 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Indigo lounge tone' },
+    { category: 'throws', title: 'Olive Garden Throw', img: 'images/cat-throw-olive.png', badge: 'Olive', desc: 'Olive green knitted throw for earthy living rooms.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Olive knit colour' },
+    { category: 'throws', title: 'Coral Lounge Throw', img: 'images/cat-throw-coral.png', badge: 'Coral', desc: 'Coral pink knitted throw for a colourful classic sofa.', gsm: '410 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Coral living accent' },
+    { category: 'throws', title: 'Burgundy Knit Throw', img: 'images/cat-throw-burgundy.png', badge: 'Burgundy', desc: 'Burgundy knitted throw with fringe for a rich living room.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Burgundy knit finish' }
+  ];
+
+  function chunkItems(items, size) {
+    const groups = [];
+    for (let i = 0; i < items.length; i += size) {
+      groups.push(items.slice(i, i + size));
+    }
+    return groups;
+  }
+
+  function escapeAttr(value) {
+    return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function createCollectionCard(item) {
+    const wrap = document.createElement('div');
+    wrap.className = 'col-6 col-lg-3 collection-item';
+    wrap.setAttribute('data-category', item.category);
+    wrap.innerHTML =
+      '<div class="collection-card">' +
+        '<div class="collection-img-box">' +
+          '<img src="' + escapeAttr(item.img) + '" alt="' + escapeAttr(item.title) + '" loading="lazy">' +
+          '<div class="collection-overlay">' +
+            '<button class="btn btn-luxury-primary w-100 py-2" data-bs-toggle="modal" data-bs-target="#collectionModal"' +
+              ' data-title="' + escapeAttr(item.title) + '"' +
+              ' data-desc="' + escapeAttr(item.desc) + '"' +
+              ' data-img="' + escapeAttr(item.img) + '"' +
+              ' data-gsm="' + escapeAttr(item.gsm) + '"' +
+              ' data-fabric="' + escapeAttr(item.fabric) + '"' +
+              ' data-sizes="' + escapeAttr(item.sizes) + '">' +
+              '<i class="bi bi-eye"></i> Quick View Specs' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="collection-body">' +
+          '<div>' +
+            '<div class="badge-gold mb-2">' + escapeAttr(item.badge) + '</div>' +
+            '<h4 class="collection-title">' + escapeAttr(item.title) + '</h4>' +
+            '<p class="collection-desc">' + escapeAttr(item.desc) + '</p>' +
+          '</div>' +
+          '<ul class="spec-list">' +
+            '<li><i class="bi bi-sliders"></i> Weight: ' + escapeAttr(item.gsm) + '</li>' +
+            '<li><i class="bi bi-palette"></i> ' + escapeAttr(item.spec) + '</li>' +
+          '</ul>' +
+        '</div>' +
+      '</div>';
+    return wrap;
+  }
+
+  function renderCollectionSlides(filterValue) {
+    if (!collectionCarouselEl) return;
+
+    const items = COLLECTION_CATALOG.filter((item) => (
+      filterValue === 'all' || item.category === filterValue
+    ));
+    const cards = items.map(createCollectionCard);
+    const inner = collectionCarouselEl.querySelector('.carousel-inner');
+    const indicators = collectionCarouselEl.querySelector('.carousel-indicators');
+    const groups = chunkItems(cards, 4);
+
+    inner.innerHTML = '';
+    indicators.innerHTML = '';
+
+    if (!groups.length) {
+      inner.innerHTML = '<div class="carousel-item active"><p class="text-center py-4 mb-0">No pieces in this collection yet.</p></div>';
+    } else {
+      groups.forEach((group, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
+        const row = document.createElement('div');
+        row.className = 'row g-2';
+        group.forEach((el) => row.appendChild(el));
+        slide.appendChild(row);
+        inner.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('data-bs-target', '#collectionCarousel');
+        dot.setAttribute('data-bs-slide-to', String(index));
+        if (index === 0) {
+          dot.className = 'active';
+          dot.setAttribute('aria-current', 'true');
         }
+        dot.setAttribute('aria-label', 'Slide ' + (index + 1));
+        indicators.appendChild(dot);
       });
+    }
+
+    if (typeof bootstrap !== 'undefined') {
+      const existing = bootstrap.Carousel.getInstance(collectionCarouselEl);
+      if (existing) existing.dispose();
+      new bootstrap.Carousel(collectionCarouselEl, { interval: 4000, ride: true, wrap: true });
+    }
+  }
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCollectionSlides(btn.getAttribute('data-filter'));
     });
   });
+
+  renderCollectionSlides('all');
 
   // 6. QUICK VIEW COLLECTION MODAL DATA
   const quickViewModal = document.getElementById('collectionModal');
@@ -182,79 +303,190 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7. GOOGLE SHEETS CONTACT FORM SUBMISSION
+  // 7. SIMPLE ENQUIRY FORM
   const contactForm = document.getElementById('trishlaContactForm');
   const submitBtn = document.getElementById('submitBtn');
   const btnSpinner = document.getElementById('btnSpinner');
   const btnText = document.getElementById('btnText');
+  const phoneInput = document.getElementById('formPhone');
+  const emailInput = document.getElementById('formEmail');
+  const nameInput = document.getElementById('formName');
+  const cityInput = document.getElementById('formCity');
+  const remarkInput = document.getElementById('formRemark');
+  const phoneHint = document.getElementById('phoneHint');
+  const emailHint = document.getElementById('emailHint');
   const responseModalEl = document.getElementById('responseModal');
   const responseModalText = document.getElementById('responseModalText');
   const responseModalTitle = document.getElementById('responseModalTitle');
   const responseModalIcon = document.getElementById('responseModalIcon');
 
+  const INDIAN_MOBILE = /^[6-9][0-9]{9}$/;
+  const SIMPLE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const MAIL_BACKEND_READY = GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.indexOf('YOUR_GOOGLE_APPS_SCRIPT') === -1;
+
   let responseModalInstance = null;
+
   if (responseModalEl && typeof bootstrap !== 'undefined') {
     responseModalInstance = new bootstrap.Modal(responseModalEl);
+  }
+
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () => {
+      phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+      if (!phoneInput.value) {
+        phoneHint.textContent = '';
+      } else if (!INDIAN_MOBILE.test(phoneInput.value)) {
+        phoneHint.textContent = 'Enter a valid 10-digit Indian mobile starting with 6, 7, 8 or 9.';
+      } else {
+        phoneHint.textContent = '';
+      }
+    });
+  }
+
+  if (emailInput && emailHint) {
+    emailInput.addEventListener('input', () => {
+      if (!emailInput.value) {
+        emailHint.textContent = '';
+      } else if (!SIMPLE_EMAIL.test(emailInput.value.trim())) {
+        emailHint.textContent = 'Enter a valid email ID.';
+      } else {
+        emailHint.textContent = '';
+      }
+    });
+  }
+
+  function mailRequest(action, fields) {
+    return new Promise((resolve, reject) => {
+      const callback = 'trishlaMail_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+      const params = new URLSearchParams(Object.assign({ action: action, callback: callback }, fields));
+      const script = document.createElement('script');
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Mail service timed out. Please try again.'));
+      }, 25000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        try { delete window[callback]; } catch (err) { window[callback] = undefined; }
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[callback] = function (data) {
+        cleanup();
+        resolve(data || { ok: false, error: 'Empty response from mail service.' });
+      };
+
+      script.onerror = function () {
+        cleanup();
+        reject(new Error('Could not reach the mail service. Check the Google Apps Script URL.'));
+      };
+
+      const joiner = GOOGLE_APPS_SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
+      script.src = GOOGLE_APPS_SCRIPT_URL + joiner + params.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  async function sendEnquiryEmail(details) {
+    const response = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(ENQUIRY_INBOX), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        Name: details.name,
+        Email: details.email,
+        Phone: details.phone,
+        City: details.city,
+        Remark: details.remark,
+        _subject: 'New TRISHLACOZY enquiry from ' + details.name,
+        _template: 'table',
+        _replyto: details.email,
+        _captcha: 'false'
+      })
+    });
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (err) {
+      data = {};
+    }
+
+    const ok = response.ok && (data.success === true || data.success === 'true');
+    if (!ok) {
+      throw new Error(data.message || 'Could not deliver the enquiry email.');
+    }
+    return data;
   }
 
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Basic client-side validation
-      const name = document.getElementById('formName').value.trim();
-      const phone = document.getElementById('formPhone').value.trim();
-      const email = document.getElementById('formEmail').value.trim();
-      const city = document.getElementById('formCity').value.trim();
-      const business = document.getElementById('formBusiness').value.trim();
-      const message = document.getElementById('formMessage').value.trim();
+      const name = (nameInput && nameInput.value.trim()) || '';
+      const email = (emailInput && emailInput.value.trim()) || '';
+      const phone = (phoneInput && phoneInput.value.trim()) || '';
+      const city = (cityInput && cityInput.value.trim()) || '';
+      const remark = (remarkInput && remarkInput.value.trim()) || '';
+      const honey = contactForm.querySelector('[name="_honey"]');
 
-      if (!name || !phone || !email || !message) {
-        showFormNotice("Required Fields Missing", "Please fill in all mandatory contact fields before submitting.", "warning");
+      if (honey && honey.value) {
+        return;
+      }
+      if (name.length < 2) {
+        showFormNotice('Required Fields Missing', 'Please enter your name.', 'warning');
+        return;
+      }
+      if (!SIMPLE_EMAIL.test(email)) {
+        if (emailHint) emailHint.textContent = 'Enter a valid email ID.';
+        showFormNotice('Required Fields Missing', 'Please enter a valid email ID.', 'warning');
+        return;
+      }
+      if (!INDIAN_MOBILE.test(phone)) {
+        if (phoneHint) phoneHint.textContent = 'Only a 10-digit Indian mobile (starting 6-9) is allowed.';
+        return;
+      }
+      if (city.length < 2) {
+        showFormNotice('Required Fields Missing', 'Please enter the city you belong to.', 'warning');
+        return;
+      }
+      if (!remark) {
+        showFormNotice('Required Fields Missing', 'Please write a remark.', 'warning');
         return;
       }
 
-      // UI Loading State (Prevent double clicks)
       submitBtn.disabled = true;
       if (btnSpinner) btnSpinner.classList.remove('d-none');
-      if (btnText) btnText.innerText = "Submitting Lead...";
+      if (btnText) btnText.innerText = 'Sending...';
 
       const payload = {
-        name: name,
-        phone: phone,
-        email: email,
-        city: city,
-        business: business,
-        message: message,
-        timestamp: new Date().toISOString()
+        name: name.slice(0, 80),
+        email: email.slice(0, 120),
+        phone: '+91' + phone,
+        city: city.slice(0, 80),
+        remark: remark.slice(0, 1500)
       };
 
       try {
-        // If user configured a valid Apps Script URL, perform fetch
-        if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE") {
-          await fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
+        await sendEnquiryEmail(payload);
+        if (MAIL_BACKEND_READY) {
+          try {
+            await mailRequest('saveEnquiry', payload);
+          } catch (err) {}
         }
-
-        // Simulating immediate responsive UX feedback for demonstration
-        setTimeout(() => {
-          showFormNotice("Thank You for Contacting TRISHLACOZY!", 
-            `Dear ${name}, your enquiry has been received. Our luxury collection team will reach out to you within 24 hours.`, 
-            "success");
-          
-          contactForm.reset();
-          resetSubmitButton();
-        }, 1000);
-
-      } catch (error) {
-        console.error("Submission Error: ", error);
-        showFormNotice("Submission Error", "An error occurred while submitting your message. Please try again or contact us directly.", "error");
+        showFormNotice(
+          'Thank You for Contacting TRISHLACOZY!',
+          'Dear ' + name + ', your enquiry has been emailed to info@trishlacozy.com. Our team will reach out within 24 hours.',
+          'success'
+        );
+        contactForm.reset();
+        if (phoneHint) phoneHint.textContent = '';
+        if (emailHint) emailHint.textContent = '';
+      } catch (err) {
+        showFormNotice('Could not send enquiry', err.message || 'Please try again, or WhatsApp us.', 'error');
+      } finally {
         resetSubmitButton();
       }
     });
@@ -263,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetSubmitButton() {
     if (submitBtn) submitBtn.disabled = false;
     if (btnSpinner) btnSpinner.classList.add('d-none');
-    if (btnText) btnText.innerText = "Send Wholesale Enquiry";
+    if (btnText) btnText.innerText = 'Send Enquiry';
   }
 
   function showFormNotice(title, message, type) {
@@ -285,16 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       alert(`${title}\n\n${message}`);
     }
-  }
-
-  // 8. MOUSE PARALLAX TILT EFFECT ON HERO IMAGE
-  const heroImgWrapper = document.querySelector('.hero-img-wrapper');
-  if (heroImgWrapper && window.innerWidth > 992) {
-    document.addEventListener('mousemove', (e) => {
-      const mouseX = (e.clientX / window.innerWidth) - 0.5;
-      const mouseY = (e.clientY / window.innerHeight) - 0.5;
-      heroImgWrapper.style.transform = `perspective(1000px) rotateY(${mouseX * 6}deg) rotateX(${-mouseY * 6}deg)`;
-    });
   }
 
 });
