@@ -3,12 +3,9 @@
  * TRISHLACOZY - LUXURY BLANKET BRAND WEBSITE
  * ============================================================================
  *
- * Enquiries are emailed to info@trishlacozy.com.
+ * Enquiries are emailed to info@rasr.co.in through Brevo.
  * ============================================================================
  */
-
-const ENQUIRY_INBOX = "info@trishlacozy.com";
-const GOOGLE_APPS_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -322,7 +319,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const INDIAN_MOBILE = /^[6-9][0-9]{9}$/;
   const SIMPLE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const MAIL_BACKEND_READY = GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.indexOf('YOUR_GOOGLE_APPS_SCRIPT') === -1;
 
   let responseModalInstance = null;
 
@@ -355,56 +351,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function mailRequest(action, fields) {
-    return new Promise((resolve, reject) => {
-      const callback = 'trishlaMail_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
-      const params = new URLSearchParams(Object.assign({ action: action, callback: callback }, fields));
-      const script = document.createElement('script');
-      const timer = setTimeout(() => {
-        cleanup();
-        reject(new Error('Mail service timed out. Please try again.'));
-      }, 25000);
-
-      function cleanup() {
-        clearTimeout(timer);
-        try { delete window[callback]; } catch (err) { window[callback] = undefined; }
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      window[callback] = function (data) {
-        cleanup();
-        resolve(data || { ok: false, error: 'Empty response from mail service.' });
-      };
-
-      script.onerror = function () {
-        cleanup();
-        reject(new Error('Could not reach the mail service. Check the Google Apps Script URL.'));
-      };
-
-      const joiner = GOOGLE_APPS_SCRIPT_URL.indexOf('?') === -1 ? '?' : '&';
-      script.src = GOOGLE_APPS_SCRIPT_URL + joiner + params.toString();
-      document.body.appendChild(script);
-    });
-  }
-
   async function sendEnquiryEmail(details) {
-    const response = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(ENQUIRY_INBOX), {
+    const response = await fetch('/api/enquiry', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json'
       },
-      body: JSON.stringify({
-        Name: details.name,
-        Email: details.email,
-        Phone: details.phone,
-        City: details.city,
-        Remark: details.remark,
-        _subject: 'New TRISHLACOZY enquiry from ' + details.name,
-        _template: 'table',
-        _replyto: details.email,
-        _captcha: 'false'
-      })
+      body: JSON.stringify(details)
     });
 
     let data = {};
@@ -414,8 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data = {};
     }
 
-    const ok = response.ok && (data.success === true || data.success === 'true');
-    if (!ok) {
+    if (!response.ok || !data.ok) {
       throw new Error(data.message || 'Could not deliver the enquiry email.');
     }
     return data;
@@ -471,14 +424,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         await sendEnquiryEmail(payload);
-        if (MAIL_BACKEND_READY) {
-          try {
-            await mailRequest('saveEnquiry', payload);
-          } catch (err) {}
-        }
         showFormNotice(
           'Thank You for Contacting TRISHLACOZY!',
-          'Dear ' + name + ', your enquiry has been emailed to info@trishlacozy.com. Our team will reach out within 24 hours.',
+          'Dear ' + name + ', your enquiry has been emailed to info@rasr.co.in. Our team will reach out within 24 hours.',
           'success'
         );
         contactForm.reset();

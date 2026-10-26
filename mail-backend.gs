@@ -1,18 +1,10 @@
 /**
- * TRISHLACOZY — enquiry saver
- *
- * SETUP (one time):
- * 1. Open Google Sheets -> Extensions -> Apps Script
- * 2. Paste THIS file, Deploy as Web app
- *    Execute as: Me. Who has access: Anyone.
- * 3. Paste the Web app URL into GOOGLE_APPS_SCRIPT_URL in script.js
- * 4. First save will ask you to allow Gmail + Sheets. Click Allow.
- *
- * Sheet created automatically:
- *   Enquiries — Date, Name, Email, Phone, Remark
+ * Optional Google Sheet copy of enquiries.
+ * The website form does not use this file. It sends mail through
+ * the Cloudflare Worker in worker.js and Brevo, to info@rasr.co.in.
  */
 
-var BUSINESS_INBOX = 'info@trishlacozy.com';
+var BUSINESS_INBOX = 'info@rasr.co.in';
 
 function doGet(e) {
   return handle_(e);
