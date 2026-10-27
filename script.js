@@ -215,15 +215,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return wrap;
   }
 
-  function renderCollectionMarquee(filterValue) {
+  function renderCollectionSlides(filterValue) {
     if (!collectionMarqueeEl) return;
-    const track = collectionMarqueeEl.querySelector('.collection-marquee-track');
+
     const items = COLLECTION_CATALOG.filter((item) => (
       filterValue === 'all' || item.category === filterValue
     ));
-
-    track.style.animation = 'none';
+    const track = collectionMarqueeEl.querySelector('.collection-marquee-track');
     track.innerHTML = '';
+    track.style.animation = 'none';
 
     if (!items.length) {
       track.innerHTML = '<p class="collection-marquee-empty">No pieces in this collection yet.</p>';
@@ -239,20 +239,21 @@ document.addEventListener('DOMContentLoaded', () => {
     track.appendChild(group);
     track.appendChild(clone);
 
-    const seconds = Math.max(items.length * 5, 24);
+    const cardWidth = window.matchMedia('(max-width: 576px)').matches ? 242 : 282;
+    track.style.setProperty('--marquee-duration', Math.max(20, (items.length * cardWidth) / 55) + 's');
     track.offsetWidth;
-    track.style.animation = 'collection-marquee ' + seconds + 's linear infinite';
+    track.style.animation = '';
   }
 
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       filterBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      renderCollectionMarquee(btn.getAttribute('data-filter'));
+      renderCollectionSlides(btn.getAttribute('data-filter'));
     });
   });
 
-  renderCollectionMarquee('all');
+  renderCollectionSlides('all');
 
   // 6. QUICK VIEW COLLECTION MODAL DATA
   const quickViewModal = document.getElementById('collectionModal');

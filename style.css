@@ -1298,6 +1298,7 @@ img {
   display: flex;
   width: max-content;
   will-change: transform;
+  animation: collection-marquee var(--marquee-duration, 80s) linear infinite;
 }
 .collection-marquee-group {
   display: flex;
