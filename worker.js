@@ -10,6 +10,7 @@ function json(body, status) {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
+      "x-enquiry-rev": "3",
     },
   });
 }
@@ -36,10 +37,29 @@ function readEnquiry(body) {
   return { name, email, phone, city, remark };
 }
 
+function brevoKey(env) {
+  const named = [env.BREVO_API_KEY, env.BREVO_APL_KEY, env.BREVO_KEY];
+  for (const value of named) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  for (const value of Object.values(env || {})) {
+    if (typeof value === "string" && value.trim().startsWith("xkeysib-")) return value.trim();
+  }
+  return "";
+}
+
+function missingKeyResponse(env) {
+  const names = Object.keys(env || {}).filter((name) => name.toUpperCase().includes("BREVO"));
+  const message = names.length
+    ? "Email service is not configured yet. Found " + names.join(", ") + " but it has no value."
+    : "Email service is not configured yet. Add secret BREVO_API_KEY under Worker Settings, Variables and Secrets. A Build variable cannot send mail.";
+  return json({ ok: false, message }, 503);
+}
+
 async function sendWithBrevo(env, enquiry) {
-  const apiKey = env.BREVO_API_KEY || env.BREVO_APL_KEY;
+  const apiKey = brevoKey(env);
   if (!apiKey) {
-    return json({ ok: false, message: "Email service is not configured yet." }, 503);
+    return missingKeyResponse(env);
   }
 
   const senderEmail = line(env.BREVO_SENDER_EMAIL || INBOX, 120);
