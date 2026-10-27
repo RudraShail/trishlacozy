@@ -37,7 +37,7 @@ function readEnquiry(body) {
 }
 
 async function sendWithBrevo(env, enquiry) {
-  const apiKey = env.BREVO_API_KEY;
+  const apiKey = env.BREVO_API_KEY || env.BREVO_APL_KEY;
   if (!apiKey) {
     return json({ ok: false, message: "Email service is not configured yet." }, 503);
   }
