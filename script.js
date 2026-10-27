@@ -326,12 +326,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const remarkInput = document.getElementById('formRemark');
   const phoneHint = document.getElementById('phoneHint');
   const emailHint = document.getElementById('emailHint');
-  const sendOtpBtn = document.getElementById('sendOtpBtn');
-  const otpRow = document.getElementById('otpRow');
+  const otpModalEl = document.getElementById('otpModal');
+  const otpModalEmail = document.getElementById('otpModalEmail');
   const otpInput = document.getElementById('formOtp');
   const otpHint = document.getElementById('otpHint');
+  const confirmOtpBtn = document.getElementById('confirmOtpBtn');
+  const confirmOtpText = document.getElementById('confirmOtpText');
+  const resendOtpBtn = document.getElementById('resendOtpBtn');
   let otpToken = '';
   let otpForEmail = '';
+  let pendingEnquiry = null;
+  let otpModalInstance = null;
+  let noticeAfterOtpClose = null;
   const responseModalEl = document.getElementById('responseModal');
   const responseModalText = document.getElementById('responseModalText');
   const responseModalTitle = document.getElementById('responseModalTitle');
@@ -344,6 +350,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (responseModalEl && typeof bootstrap !== 'undefined') {
     responseModalInstance = new bootstrap.Modal(responseModalEl);
+  }
+  if (otpModalEl && typeof bootstrap !== 'undefined') {
+    otpModalInstance = new bootstrap.Modal(otpModalEl);
+    otpModalEl.addEventListener('shown.bs.modal', () => {
+      if (otpInput) otpInput.focus();
+    });
+    otpModalEl.addEventListener('hidden.bs.modal', () => {
+      if (!noticeAfterOtpClose) return;
+      const notice = noticeAfterOtpClose;
+      noticeAfterOtpClose = null;
+      showFormNotice(notice.title, notice.message, notice.type);
+    });
   }
 
   if (phoneInput) {
@@ -415,13 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     otpToken = data.token;
     otpForEmail = email.toLowerCase();
-    if (otpRow) otpRow.classList.remove('d-none');
-    if (otpInput) {
-      otpInput.value = '';
-      otpInput.focus();
-    }
-    if (sendOtpBtn) sendOtpBtn.textContent = 'Resend code';
-    setFieldHint(emailHint, 'Code sent to ' + email + '. It expires in 10 minutes.', true);
+    if (otpInput) otpInput.value = '';
+    setFieldHint(emailHint, '');
   }
 
   async function sendEnquiryEmail(details) {
@@ -447,23 +460,64 @@ document.addEventListener('DOMContentLoaded', () => {
     return data;
   }
 
-  if (sendOtpBtn && emailInput) {
-    sendOtpBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      if (!SIMPLE_EMAIL.test(email)) {
-        setFieldHint(emailHint, 'Enter a valid email ID.');
-        emailInput.focus();
-        return;
+  async function confirmEnquiryCode() {
+    const code = (otpInput && otpInput.value.trim()) || '';
+    if (!pendingEnquiry || !otpToken) {
+      setFieldHint(otpHint, 'Send the enquiry again to get a new code.');
+      return;
+    }
+    if (!/^\d{6}$/.test(code)) {
+      setFieldHint(otpHint, 'Enter the 6-digit code from your email.');
+      return;
+    }
+    if (confirmOtpBtn) confirmOtpBtn.disabled = true;
+    if (confirmOtpText) confirmOtpText.textContent = 'Checking...';
+    try {
+      await sendEnquiryEmail(Object.assign({}, pendingEnquiry, { otp: code, token: otpToken }));
+      noticeAfterOtpClose = {
+        title: 'Thank You for Contacting TRISHLACOZY!',
+        message: 'Dear ' + pendingEnquiry.name + ', your enquiry has been emailed to info@rasr.co.in. Our team will reach out within 24 hours.',
+        type: 'success'
+      };
+      if (otpModalInstance) otpModalInstance.hide();
+      else showFormNotice(noticeAfterOtpClose.title, noticeAfterOtpClose.message, noticeAfterOtpClose.type);
+      contactForm.reset();
+      clearOtp();
+      pendingEnquiry = null;
+      if (phoneHint) phoneHint.textContent = '';
+      setFieldHint(emailHint, '');
+      setFieldHint(otpHint, '');
+    } catch (err) {
+      setFieldHint(otpHint, err.message || 'That code could not be checked. Try again.');
+    } finally {
+      if (confirmOtpBtn) confirmOtpBtn.disabled = false;
+      if (confirmOtpText) confirmOtpText.textContent = 'Confirm and send';
+    }
+  }
+
+  if (confirmOtpBtn) {
+    confirmOtpBtn.addEventListener('click', confirmEnquiryCode);
+  }
+  if (otpInput) {
+    otpInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        confirmEnquiryCode();
       }
-      sendOtpBtn.disabled = true;
-      sendOtpBtn.textContent = 'Sending...';
+    });
+  }
+  if (resendOtpBtn) {
+    resendOtpBtn.addEventListener('click', async () => {
+      if (!pendingEnquiry) return;
+      resendOtpBtn.disabled = true;
       try {
-        await requestEmailCode(email);
+        await requestEmailCode(pendingEnquiry.email);
+        setFieldHint(otpHint, 'A new code was sent to your email.', true);
+        if (otpInput) otpInput.focus();
       } catch (err) {
-        sendOtpBtn.textContent = otpToken ? 'Resend code' : 'Send code';
-        setFieldHint(emailHint, err.message || 'Could not send the email code.');
+        setFieldHint(otpHint, err.message || 'Could not send a new code.');
       } finally {
-        sendOtpBtn.disabled = false;
+        resendOtpBtn.disabled = false;
       }
     });
   }
@@ -504,57 +558,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const code = (otpInput && otpInput.value.trim()) || '';
-      if (!otpToken || otpForEmail !== email.toLowerCase() || !/^\d{6}$/.test(code)) {
-        submitBtn.disabled = true;
-        if (sendOtpBtn) sendOtpBtn.disabled = true;
-        if (btnText) btnText.innerText = 'Sending code...';
-        try {
-          if (!otpToken || otpForEmail !== email.toLowerCase()) await requestEmailCode(email);
-        } catch (err) {
-          showFormNotice('Could not send code', err.message || 'Please try again.', 'error');
-          return;
-        } finally {
-          resetSubmitButton();
-          if (sendOtpBtn) sendOtpBtn.disabled = false;
-        }
-        if (!/^\d{6}$/.test((otpInput && otpInput.value.trim()) || '')) {
-          setFieldHint(otpHint, 'Enter the 6-digit code from your email, then submit.');
-          showFormNotice('Check your email', 'We sent a 6-digit code to ' + email + '. Enter it below, then submit the enquiry.', 'warning');
-          return;
-        }
-      }
-
       submitBtn.disabled = true;
       if (btnSpinner) btnSpinner.classList.remove('d-none');
-      if (btnText) btnText.innerText = 'Sending...';
+      if (btnText) btnText.innerText = 'Sending code...';
 
-      const payload = {
+      pendingEnquiry = {
         name: name.slice(0, 80),
         email: email.slice(0, 120),
         phone: '+91' + phone,
         city: city.slice(0, 80),
-        remark: remark.slice(0, 1500),
-        otp: (otpInput && otpInput.value.trim()) || '',
-        token: otpToken
+        remark: remark.slice(0, 1500)
       };
 
       try {
-        await sendEnquiryEmail(payload);
-        showFormNotice(
-          'Thank You for Contacting TRISHLACOZY!',
-          'Dear ' + name + ', your enquiry has been emailed to info@rasr.co.in. Our team will reach out within 24 hours.',
-          'success'
-        );
-        contactForm.reset();
-        clearOtp();
-        if (otpRow) otpRow.classList.add('d-none');
-        if (sendOtpBtn) sendOtpBtn.textContent = 'Send code';
-        if (phoneHint) phoneHint.textContent = '';
-        setFieldHint(emailHint, '');
+        await requestEmailCode(email);
+        if (otpModalEmail) otpModalEmail.textContent = email;
         setFieldHint(otpHint, '');
+        if (otpModalInstance) otpModalInstance.show();
       } catch (err) {
-        showFormNotice('Could not send enquiry', err.message || 'Please try again, or WhatsApp us.', 'error');
+        showFormNotice('Could not send code', err.message || 'Please try again.', 'error');
       } finally {
         resetSubmitButton();
       }
