@@ -608,6 +608,13 @@ img {
   background-color: var(--color-cream);
   position: relative;
 }
+.journey-page .founder-section {
+  padding-top: 108px;
+}
+#founder,
+#journey {
+  scroll-margin-top: 96px;
+}
 
 .founder-card {
   background: var(--color-warm-white);
