@@ -104,9 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
     statsObserver.observe(statsSection);
   }
 
-  // 5. COLLECTION CAROUSEL + FILTERING
+  // 5. COLLECTION MARQUEE + FILTERING
   const filterBtns = document.querySelectorAll('.filter-btn');
-  const collectionCarouselEl = document.getElementById('collectionCarousel');
+  const collectionMarqueeEl = document.getElementById('collectionMarquee');
 
   const COLLECTION_CATALOG = [
     { category: 'winter', title: 'Royal Arctic Heavyweight', img: 'images/collection-winter.webp', badge: 'Best Seller', desc: 'Ultra-dense dual layer fleece engineered for deep winter comfort.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King Bedding', spec: 'Non-shedding, 100% Hypoallergenic' },
@@ -176,21 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
     { category: 'throws', title: 'Burgundy Knit Throw', img: 'images/cat-throw-burgundy.webp', badge: 'Burgundy', desc: 'Burgundy knitted throw with fringe for a rich living room.', gsm: '420 GSM Knit', fabric: 'Cotton-Acrylic Knit', sizes: '130cm x 170cm', spec: 'Burgundy knit finish' }
   ];
 
-  function chunkItems(items, size) {
-    const groups = [];
-    for (let i = 0; i < items.length; i += size) {
-      groups.push(items.slice(i, i + size));
-    }
-    return groups;
-  }
-
   function escapeAttr(value) {
     return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
   function createCollectionCard(item) {
     const wrap = document.createElement('div');
-    wrap.className = 'col-6 col-lg-3 collection-item';
+    wrap.className = 'collection-item';
     wrap.setAttribute('data-category', item.category);
     wrap.innerHTML =
       '<div class="collection-card">' +
@@ -223,61 +215,44 @@ document.addEventListener('DOMContentLoaded', () => {
     return wrap;
   }
 
-  function renderCollectionSlides(filterValue) {
-    if (!collectionCarouselEl) return;
-
+  function renderCollectionMarquee(filterValue) {
+    if (!collectionMarqueeEl) return;
+    const track = collectionMarqueeEl.querySelector('.collection-marquee-track');
     const items = COLLECTION_CATALOG.filter((item) => (
       filterValue === 'all' || item.category === filterValue
     ));
-    const cards = items.map(createCollectionCard);
-    const inner = collectionCarouselEl.querySelector('.carousel-inner');
-    const indicators = collectionCarouselEl.querySelector('.carousel-indicators');
-    const groups = chunkItems(cards, 4);
 
-    inner.innerHTML = '';
-    indicators.innerHTML = '';
+    track.style.animation = 'none';
+    track.innerHTML = '';
 
-    if (!groups.length) {
-      inner.innerHTML = '<div class="carousel-item active"><p class="text-center py-4 mb-0">No pieces in this collection yet.</p></div>';
-    } else {
-      groups.forEach((group, index) => {
-        const slide = document.createElement('div');
-        slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
-        const row = document.createElement('div');
-        row.className = 'row g-2';
-        group.forEach((el) => row.appendChild(el));
-        slide.appendChild(row);
-        inner.appendChild(slide);
-
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.setAttribute('data-bs-target', '#collectionCarousel');
-        dot.setAttribute('data-bs-slide-to', String(index));
-        if (index === 0) {
-          dot.className = 'active';
-          dot.setAttribute('aria-current', 'true');
-        }
-        dot.setAttribute('aria-label', 'Slide ' + (index + 1));
-        indicators.appendChild(dot);
-      });
+    if (!items.length) {
+      track.innerHTML = '<p class="collection-marquee-empty">No pieces in this collection yet.</p>';
+      return;
     }
 
-    if (typeof bootstrap !== 'undefined') {
-      const existing = bootstrap.Carousel.getInstance(collectionCarouselEl);
-      if (existing) existing.dispose();
-      new bootstrap.Carousel(collectionCarouselEl, { interval: 4000, ride: true, wrap: true });
-    }
+    const group = document.createElement('div');
+    group.className = 'collection-marquee-group';
+    items.forEach((item) => group.appendChild(createCollectionCard(item)));
+
+    const clone = group.cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(group);
+    track.appendChild(clone);
+
+    const seconds = Math.max(items.length * 5, 24);
+    track.offsetWidth;
+    track.style.animation = 'collection-marquee ' + seconds + 's linear infinite';
   }
 
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       filterBtns.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
-      renderCollectionSlides(btn.getAttribute('data-filter'));
+      renderCollectionMarquee(btn.getAttribute('data-filter'));
     });
   });
 
-  renderCollectionSlides('all');
+  renderCollectionMarquee('all');
 
   // 6. QUICK VIEW COLLECTION MODAL DATA
   const quickViewModal = document.getElementById('collectionModal');
