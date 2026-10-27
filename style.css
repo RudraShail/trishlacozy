@@ -1105,6 +1105,73 @@ img {
   padding: 30px;
   text-align: center;
 }
+#collectionModal {
+  z-index: 10050;
+}
+.modal-backdrop {
+  z-index: 10040;
+}
+.collection-modal-dialog {
+  max-width: 620px;
+  width: calc(100% - 2rem);
+  margin: 5.75rem auto 1rem;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+}
+.collection-modal {
+  position: relative;
+  padding: 44px 16px 14px;
+  text-align: start;
+  max-height: calc(100vh - 6rem);
+  overflow: auto;
+}
+.collection-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-warm-brown);
+  color: var(--color-warm-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(44, 31, 22, 0.28);
+}
+.collection-modal-close:hover {
+  background: var(--color-deep-brown);
+  color: #fff;
+}
+.collection-modal-body {
+  padding: 0 !important;
+}
+.collection-modal #modalProductImg {
+  width: 100%;
+  height: 168px;
+  object-fit: cover;
+}
+.collection-modal #modalProductTitle {
+  font-size: 1.55rem;
+  line-height: 1.15;
+}
+.collection-modal .list-group-item {
+  gap: 12px;
+}
+@media (max-width: 576px) {
+  .collection-modal {
+    padding: 46px 14px 14px;
+  }
+  .collection-modal #modalProductImg {
+    height: 140px;
+  }
+}
 
 /* --------------------------------------------------------------------------
    13. FOOTER

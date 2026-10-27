@@ -819,20 +819,20 @@
        ========================================================================= -->
   <!-- Collection Specs Modal -->
   <div class="modal fade" id="collectionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content modal-content-luxury">
-        <div class="modal-header border-0 pb-0">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-start p-4">
-          <div class="row align-items-center gy-4">
-            <div class="col-md-6">
+    <div class="modal-dialog modal-dialog-centered collection-modal-dialog">
+      <div class="modal-content modal-content-luxury collection-modal">
+        <button type="button" class="collection-modal-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+        <div class="modal-body collection-modal-body">
+          <div class="row align-items-center gy-3">
+            <div class="col-md-5">
               <img id="modalProductImg" src="" class="img-fluid rounded-3 shadow" alt="Product Quick View">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-7">
               <div class="badge-gold mb-2">Technical Specification</div>
               <h3 id="modalProductTitle" class="font-serif mb-2">Product Name</h3>
-              <p id="modalProductDesc" class="small text-muted mb-4"></p>
+              <p id="modalProductDesc" class="small text-muted mb-3"></p>
 
               <ul class="list-group list-group-flush mb-4 small">
                 <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
