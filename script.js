@@ -326,6 +326,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const remarkInput = document.getElementById('formRemark');
   const phoneHint = document.getElementById('phoneHint');
   const emailHint = document.getElementById('emailHint');
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const otpRow = document.getElementById('otpRow');
+  const otpInput = document.getElementById('formOtp');
+  const otpHint = document.getElementById('otpHint');
+  let otpToken = '';
+  let otpForEmail = '';
   const responseModalEl = document.getElementById('responseModal');
   const responseModalText = document.getElementById('responseModalText');
   const responseModalTitle = document.getElementById('responseModalTitle');
@@ -353,16 +359,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function setFieldHint(el, message, ok) {
+    if (!el) return;
+    el.textContent = message || '';
+    el.classList.toggle('field-ok', !!ok && !!message);
+  }
+
+  function clearOtp() {
+    otpToken = '';
+    otpForEmail = '';
+    if (otpInput) otpInput.value = '';
+  }
+
   if (emailInput && emailHint) {
     emailInput.addEventListener('input', () => {
-      if (!emailInput.value) {
-        emailHint.textContent = '';
-      } else if (!SIMPLE_EMAIL.test(emailInput.value.trim())) {
-        emailHint.textContent = 'Enter a valid email ID.';
-      } else {
-        emailHint.textContent = '';
+      const email = emailInput.value.trim();
+      if (otpForEmail && email.toLowerCase() !== otpForEmail) clearOtp();
+      if (!email) {
+        setFieldHint(emailHint, '');
+      } else if (!SIMPLE_EMAIL.test(email)) {
+        setFieldHint(emailHint, 'Enter a valid email ID.');
+      } else if (!otpToken) {
+        setFieldHint(emailHint, '');
       }
     });
+  }
+
+  if (otpInput) {
+    otpInput.addEventListener('input', () => {
+      otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
+      if (otpHint) setFieldHint(otpHint, '');
+    });
+  }
+
+  async function requestEmailCode(email) {
+    const response = await fetch('/api/enquiry/otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.slice(0, 120),
+        honey: (contactForm.querySelector('[name="_honey"]') || {}).value || ''
+      })
+    });
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (err) {
+      data = {};
+    }
+    if (!response.ok || !data.ok || !data.token) {
+      throw new Error(data.message || 'Could not send the email code.');
+    }
+    otpToken = data.token;
+    otpForEmail = email.toLowerCase();
+    if (otpRow) otpRow.classList.remove('d-none');
+    if (otpInput) {
+      otpInput.value = '';
+      otpInput.focus();
+    }
+    if (sendOtpBtn) sendOtpBtn.textContent = 'Resend code';
+    setFieldHint(emailHint, 'Code sent to ' + email + '. It expires in 10 minutes.', true);
   }
 
   async function sendEnquiryEmail(details) {
@@ -388,6 +447,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return data;
   }
 
+  if (sendOtpBtn && emailInput) {
+    sendOtpBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      if (!SIMPLE_EMAIL.test(email)) {
+        setFieldHint(emailHint, 'Enter a valid email ID.');
+        emailInput.focus();
+        return;
+      }
+      sendOtpBtn.disabled = true;
+      sendOtpBtn.textContent = 'Sending...';
+      try {
+        await requestEmailCode(email);
+      } catch (err) {
+        sendOtpBtn.textContent = otpToken ? 'Resend code' : 'Send code';
+        setFieldHint(emailHint, err.message || 'Could not send the email code.');
+      } finally {
+        sendOtpBtn.disabled = false;
+      }
+    });
+  }
+
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -407,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (!SIMPLE_EMAIL.test(email)) {
-        if (emailHint) emailHint.textContent = 'Enter a valid email ID.';
+        setFieldHint(emailHint, 'Enter a valid email ID.');
         showFormNotice('Required Fields Missing', 'Please enter a valid email ID.', 'warning');
         return;
       }
@@ -424,6 +504,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const code = (otpInput && otpInput.value.trim()) || '';
+      if (!otpToken || otpForEmail !== email.toLowerCase() || !/^\d{6}$/.test(code)) {
+        submitBtn.disabled = true;
+        if (sendOtpBtn) sendOtpBtn.disabled = true;
+        if (btnText) btnText.innerText = 'Sending code...';
+        try {
+          if (!otpToken || otpForEmail !== email.toLowerCase()) await requestEmailCode(email);
+        } catch (err) {
+          showFormNotice('Could not send code', err.message || 'Please try again.', 'error');
+          return;
+        } finally {
+          resetSubmitButton();
+          if (sendOtpBtn) sendOtpBtn.disabled = false;
+        }
+        if (!/^\d{6}$/.test((otpInput && otpInput.value.trim()) || '')) {
+          setFieldHint(otpHint, 'Enter the 6-digit code from your email, then submit.');
+          showFormNotice('Check your email', 'We sent a 6-digit code to ' + email + '. Enter it below, then submit the enquiry.', 'warning');
+          return;
+        }
+      }
+
       submitBtn.disabled = true;
       if (btnSpinner) btnSpinner.classList.remove('d-none');
       if (btnText) btnText.innerText = 'Sending...';
@@ -433,7 +534,9 @@ document.addEventListener('DOMContentLoaded', () => {
         email: email.slice(0, 120),
         phone: '+91' + phone,
         city: city.slice(0, 80),
-        remark: remark.slice(0, 1500)
+        remark: remark.slice(0, 1500),
+        otp: (otpInput && otpInput.value.trim()) || '',
+        token: otpToken
       };
 
       try {
@@ -444,8 +547,12 @@ document.addEventListener('DOMContentLoaded', () => {
           'success'
         );
         contactForm.reset();
+        clearOtp();
+        if (otpRow) otpRow.classList.add('d-none');
+        if (sendOtpBtn) sendOtpBtn.textContent = 'Send code';
         if (phoneHint) phoneHint.textContent = '';
-        if (emailHint) emailHint.textContent = '';
+        setFieldHint(emailHint, '');
+        setFieldHint(otpHint, '');
       } catch (err) {
         showFormNotice('Could not send enquiry', err.message || 'Please try again, or WhatsApp us.', 'error');
       } finally {

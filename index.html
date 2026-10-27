@@ -559,7 +559,7 @@
         <div class="col-lg-7 reveal-right">
           <div class="contact-card" id="enquiry">
             <h3 class="font-serif mb-2 fs-5">Send Us an Enquiry</h3>
-            <p class="small text-muted mb-3">Fill name, email, phone, city and remark. Details go to info@rasr.co.in.</p>
+            <p class="small text-muted mb-3">Fill in your details. We email a 6-digit code to confirm your email, then the enquiry goes to info@rasr.co.in.</p>
 
             <form id="trishlaContactForm">
               <input type="text" name="_honey" class="enquiry-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -571,8 +571,11 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold" for="formEmail">Email ID *</label>
-                  <input type="email" id="formEmail" name="email" class="form-control form-control-luxury"
-                    placeholder="you@email.com" required autocomplete="email">
+                  <div class="enquiry-email-row">
+                    <input type="email" id="formEmail" name="email" class="form-control form-control-luxury"
+                      placeholder="you@email.com" required autocomplete="email">
+                    <button type="button" id="sendOtpBtn" class="btn-otp">Send code</button>
+                  </div>
                   <small id="emailHint" class="field-error mt-1 d-block"></small>
                 </div>
                 <div class="col-md-6">
@@ -594,6 +597,12 @@
                   <textarea id="formRemark" name="remark" class="form-control form-control-luxury" rows="3"
                     placeholder="Write your enquiry or requirement here..."
                     required></textarea>
+                </div>
+                <div class="col-12 d-none" id="otpRow">
+                  <label class="form-label small fw-semibold" for="formOtp">Email code *</label>
+                  <input type="text" id="formOtp" name="otp" class="form-control form-control-luxury" inputmode="numeric"
+                    maxlength="6" autocomplete="one-time-code" placeholder="6-digit code" pattern="[0-9]{6}">
+                  <small id="otpHint" class="field-error mt-1 d-block"></small>
                 </div>
                 <div class="col-12 mt-2">
                   <button type="submit" id="submitBtn" class="btn btn-luxury-primary w-100 py-2">
