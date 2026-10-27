@@ -184,22 +184,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
+  function collectionDataAttrs(item) {
+    return ' data-title="' + escapeAttr(item.title) + '"' +
+      ' data-desc="' + escapeAttr(item.desc) + '"' +
+      ' data-img="' + escapeAttr(item.img) + '"' +
+      ' data-gsm="' + escapeAttr(item.gsm) + '"' +
+      ' data-fabric="' + escapeAttr(item.fabric) + '"' +
+      ' data-sizes="' + escapeAttr(item.sizes) + '"';
+  }
+
   function createCollectionCard(item) {
     const wrap = document.createElement('div');
     wrap.className = 'collection-item';
     wrap.setAttribute('data-category', item.category);
     wrap.innerHTML =
       '<div class="collection-card">' +
-        '<div class="collection-img-box">' +
+        '<div class="collection-img-box" role="button" tabindex="0" aria-label="Open ' + escapeAttr(item.title) + '"' + collectionDataAttrs(item) + '>' +
           '<img src="' + escapeAttr(item.img) + '" alt="' + escapeAttr(item.title) + '" loading="lazy">' +
           '<div class="collection-overlay">' +
             '<button class="btn btn-luxury-primary w-100 py-2" data-bs-toggle="modal" data-bs-target="#collectionModal"' +
-              ' data-title="' + escapeAttr(item.title) + '"' +
-              ' data-desc="' + escapeAttr(item.desc) + '"' +
-              ' data-img="' + escapeAttr(item.img) + '"' +
-              ' data-gsm="' + escapeAttr(item.gsm) + '"' +
-              ' data-fabric="' + escapeAttr(item.fabric) + '"' +
-              ' data-sizes="' + escapeAttr(item.sizes) + '">' +
+              collectionDataAttrs(item) + '>' +
               '<i class="bi bi-eye"></i> Quick View Specs' +
             '</button>' +
           '</div>' +
@@ -243,14 +247,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const clone = group.cloneNode(true);
     clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll('.collection-img-box, button').forEach((el) => {
+      el.setAttribute('tabindex', '-1');
+    });
     track.appendChild(group);
     track.appendChild(clone);
 
     const cardWidth = window.matchMedia('(max-width: 576px)').matches ? 242 : 282;
-    const seconds = Math.max(16, Math.round((items.length * cardWidth) / 140));
+    const seconds = Math.max(36, Math.round((items.length * cardWidth) / 55));
+    track.style.setProperty('--marquee-duration', seconds + 's');
     track.style.animation = 'none';
     track.offsetWidth;
-    track.style.animation = 'collection-marquee ' + seconds + 's linear infinite';
+    track.style.removeProperty('animation');
+  }
+
+  function applyCollectionModal(source) {
+    if (!source) return;
+    document.getElementById('modalProductTitle').innerText = source.getAttribute('data-title') || 'Collection Detail';
+    document.getElementById('modalProductDesc').innerText = source.getAttribute('data-desc') || '';
+    const modalImg = document.getElementById('modalProductImg');
+    modalImg.src = source.getAttribute('data-img') || '';
+    modalImg.alt = source.getAttribute('data-title') || 'Product Quick View';
+    document.getElementById('modalProductGSM').innerText = source.getAttribute('data-gsm') || '500 GSM Premium Heavyweight';
+    document.getElementById('modalProductFabric').innerText = source.getAttribute('data-fabric') || '100% Micro-Fleece Ultra Soft';
+    document.getElementById('modalProductSizes').innerText = source.getAttribute('data-sizes') || 'Single, Double, King & Custom Wholesale';
+  }
+
+  function openCollectionFrom(source) {
+    applyCollectionModal(source);
+    if (quickViewModal && window.bootstrap) {
+      window.bootstrap.Modal.getOrCreateInstance(quickViewModal).show();
+    }
+  }
+
+  if (collectionMarqueeEl) {
+    collectionMarqueeEl.addEventListener('click', (event) => {
+      if (event.target.closest('[data-bs-toggle="modal"]')) return;
+      const opener = event.target.closest('.collection-img-box');
+      if (!opener || !collectionMarqueeEl.contains(opener)) return;
+      openCollectionFrom(opener);
+    });
+    collectionMarqueeEl.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const opener = event.target.closest('.collection-img-box');
+      if (!opener || !collectionMarqueeEl.contains(opener)) return;
+      event.preventDefault();
+      openCollectionFrom(opener);
+    });
   }
 
   filterBtns.forEach((btn) => {
@@ -267,20 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const quickViewModal = document.getElementById('collectionModal');
   if (quickViewModal) {
     quickViewModal.addEventListener('show.bs.modal', (event) => {
-      const button = event.relatedTarget;
-      const title = button.getAttribute('data-title');
-      const desc = button.getAttribute('data-desc');
-      const image = button.getAttribute('data-img');
-      const gsm = button.getAttribute('data-gsm');
-      const fabric = button.getAttribute('data-fabric');
-      const sizes = button.getAttribute('data-sizes');
-
-      document.getElementById('modalProductTitle').innerText = title || 'Collection Detail';
-      document.getElementById('modalProductDesc').innerText = desc || '';
-      document.getElementById('modalProductImg').src = image || '';
-      document.getElementById('modalProductGSM').innerText = gsm || '500 GSM Premium Heavyweight';
-      document.getElementById('modalProductFabric').innerText = fabric || '100% Micro-Fleece Ultra Soft';
-      document.getElementById('modalProductSizes').innerText = sizes || 'Single, Double, King & Custom Wholesale';
+      if (event.relatedTarget) applyCollectionModal(event.relatedTarget);
     });
   }
 

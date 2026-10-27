@@ -1322,8 +1322,12 @@ img {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+.collection-marquee:hover .collection-marquee-track,
 .collection-marquee:focus-within .collection-marquee-track {
   animation-play-state: paused;
+}
+.collection-marquee .collection-img-box {
+  cursor: pointer;
 }
 @media (max-width: 576px) {
   .collection-marquee .collection-item {
