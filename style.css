@@ -1115,6 +1115,9 @@ img {
 #collectionModal {
   z-index: 10050;
 }
+#responseModal {
+  z-index: 10070;
+}
 .modal-backdrop {
   z-index: 10040;
 }

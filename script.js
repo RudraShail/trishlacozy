@@ -342,6 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const responseModalText = document.getElementById('responseModalText');
   const responseModalTitle = document.getElementById('responseModalTitle');
   const responseModalIcon = document.getElementById('responseModalIcon');
+  const responseModalOk = document.getElementById('responseModalOk');
+  let goHomeAfterNotice = false;
 
   const INDIAN_MOBILE = /^[6-9][0-9]{9}$/;
   const SIMPLE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -589,10 +591,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnText) btnText.innerText = 'Send Enquiry';
   }
 
+  function clearModalOverlay() {
+    document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }
+
   function showFormNotice(title, message, type) {
+    goHomeAfterNotice = type === 'success';
     if (responseModalTitle) responseModalTitle.innerText = title;
     if (responseModalText) responseModalText.innerText = message;
-    
+
     if (responseModalIcon) {
       if (type === 'success') {
         responseModalIcon.className = "bi bi-check-circle-fill text-success display-4 mb-3";
@@ -604,10 +614,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (responseModalInstance) {
+      clearModalOverlay();
       responseModalInstance.show();
+    } else if (goHomeAfterNotice) {
+      window.location.href = 'index.html#hero';
     } else {
       alert(`${title}\n\n${message}`);
     }
+  }
+
+  if (responseModalOk) {
+    responseModalOk.addEventListener('click', () => {
+      const goHome = goHomeAfterNotice;
+      goHomeAfterNotice = false;
+      if (responseModalInstance) responseModalInstance.hide();
+      clearModalOverlay();
+      if (goHome) window.location.href = 'index.html#hero';
+    });
   }
 
 });
