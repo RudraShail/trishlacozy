@@ -1292,13 +1292,16 @@ img {
 
 .collection-marquee {
   overflow: hidden;
+  width: 100vw;
   margin: 12px 0 4px;
+  margin-left: calc(50% - 50vw);
 }
 .collection-marquee-track {
   display: flex;
+  flex-wrap: nowrap;
   width: max-content;
   will-change: transform;
-  animation: collection-marquee var(--marquee-duration, 80s) linear infinite;
+  animation: collection-marquee var(--marquee-duration, 40s) linear infinite;
 }
 .collection-marquee-group {
   display: flex;
@@ -1319,7 +1322,6 @@ img {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.collection-marquee:hover .collection-marquee-track,
 .collection-marquee:focus-within .collection-marquee-track {
   animation-play-state: paused;
 }
@@ -1328,10 +1330,6 @@ img {
     width: 230px;
     flex-basis: 230px;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .collection-marquee { overflow-x: auto; }
-  .collection-marquee-track { animation: none !important; }
 }
 
 .founder-section { background: linear-gradient(180deg, #F8EBE4 0%, var(--color-cream) 100%); }

@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { category: 'winter', title: 'Chocolate Lodge', img: 'images/cat-winter-chocolate.webp', badge: 'Chocolate', desc: 'Rich chocolate winter kambal for lodge-style bedrooms.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Warm brown pile' },
     { category: 'winter', title: 'Crimson Ember', img: 'images/cat-winter-crimson.webp', badge: 'Crimson', desc: 'Classic crimson heavyweight that glows like an ember.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Bold winter red' },
     { category: 'winter', title: 'Ochre Harvest', img: 'images/cat-winter-ochre.webp', badge: 'Ochre', desc: 'Mustard-ochre winter kambal with a classic harvest colour.', gsm: '640 GSM Heavyweight', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Gold-ochre warmth' },
+    { category: 'winter', title: 'Studio Blanket Roll', img: 'images/brand-blankets-broll.webp', badge: 'Workshop', desc: 'A full roll of winter blankets from the TRISHLACOZY studio floor.', gsm: '650 GSM Ultra-Dense', fabric: 'Dual Micro-Fleece', sizes: 'Double & King', spec: 'Studio-finished pile' },
 
     { category: 'mink', title: 'Silken Velvet Mink', img: 'images/collection-mink.webp', badge: 'Velvet Finish', desc: 'High-lustre plush mink weave with silky smooth touch and rich sheen.', gsm: '550 GSM Silk-Touch', fabric: '100% Micro-Plush Mink', sizes: 'Single, Double & Wholesale Rolls', spec: 'Rich colour depth & luster' },
     { category: 'mink', title: 'Blush Rose Mink', img: 'images/soft-02.webp', badge: 'Blush', desc: 'A pure rose mink weave with a quiet sheen and cloud-soft handfeel.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Classic blush finish' },
@@ -130,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { category: 'mink', title: 'Mauve Mink', img: 'images/cat-mink-mauve.webp', badge: 'Mauve', desc: 'Dusty mauve mink with a quiet jewel sheen.', gsm: '540 GSM Silk-Mink', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Mauve velvet finish' },
     { category: 'mink', title: 'Emerald Mink', img: 'images/cat-mink-emerald.webp', badge: 'Emerald', desc: 'Jewel emerald mink with a glossy classic colour.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Emerald luster' },
     { category: 'mink', title: 'Sapphire Mink', img: 'images/cat-mink-sapphire.webp', badge: 'Sapphire', desc: 'Royal sapphire mink with a deep silk-blue sheen.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Sapphire sheen' },
+    { category: 'mink', title: 'Fibre Close Weave', img: 'images/about-fabric.webp', badge: 'Weave', desc: 'A close look at the plush mink pile that stays soft after washing.', gsm: '550 GSM Silk-Touch', fabric: 'Micro-Plush Mink', sizes: 'Single, Double & King', spec: 'Dense mink pile' },
 
     { category: 'luxury', title: 'Imperial Cashmere Touch', img: 'images/collection-cashmere.webp', badge: 'Luxury Signature', desc: 'Flagship high-GSM blanket crafted for opulent warmth and royal aesthetics.', gsm: '700 GSM Sovereign', fabric: 'Cashmere Blend Micro-Weave', sizes: 'King & Super King', spec: 'Hand-finished satin border' },
     { category: 'luxury', title: 'Mustard Gold Sovereign', img: 'images/soft-08.webp', badge: 'Royal Gold', desc: 'A colourful classic gold kambal with a sovereign-grade pile.', gsm: '680 GSM Sovereign', fabric: 'Silk-Mink Blend', sizes: 'King & Super King', spec: 'Gold satin glow' },
@@ -141,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { category: 'luxury', title: 'Bronze Sovereign', img: 'images/cat-lux-bronze.webp', badge: 'Bronze', desc: 'Warm bronze cashmere-touch with a classic metallic glow.', gsm: '680 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Bronze satin sheen' },
     { category: 'luxury', title: 'Merlot Cashmere', img: 'images/cat-lux-merlot.webp', badge: 'Merlot', desc: 'Deep merlot cashmere-touch for a royal colourful bedroom.', gsm: '690 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Merlot satin pile' },
     { category: 'luxury', title: 'Sand Cashmere', img: 'images/cat-lux-sand.webp', badge: 'Sand', desc: 'Warm sand cashmere-touch with a quiet luxury finish.', gsm: '680 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Sand satin border' },
+    { category: 'luxury', title: 'Ivory Hero Fold', img: 'images/hero-blanket.webp', badge: 'Signature', desc: 'The ivory signature fold shown across the TRISHLACOZY collection.', gsm: '690 GSM Sovereign', fabric: 'Cashmere Blend', sizes: 'King & Super King', spec: 'Signature ivory fold' },
 
     { category: 'hotel', title: '5-Star Hospitality Suite', img: 'images/collection-hotel.webp', badge: 'Hospitality Grade', desc: 'Crisp ivory thermal blanket optimized for luxury hotel bed setups.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes & Bulk OEM', spec: '200+ wash cycle warranty' },
     { category: 'hotel', title: 'Sky Hotel Quilt', img: 'images/soft-04.webp', badge: 'Hotel Blue', desc: 'Soft sky quilted hospitality blanket on a crisp hotel bed.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Quilted hotel finish' },
@@ -152,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { category: 'hotel', title: 'Slate Hotel', img: 'images/cat-hotel-slate.webp', badge: 'Slate Blue', desc: 'Slate blue hospitality blanket for modern hotel rooms.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Slate suite colour' },
     { category: 'hotel', title: 'Sage Hotel', img: 'images/cat-hotel-sage.webp', badge: 'Sage', desc: 'Soft sage hospitality blanket for calm 5-star rooms.', gsm: '470 GSM Hotel Grade', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Sage hotel tone' },
     { category: 'hotel', title: 'Rust Suite Accent', img: 'images/cat-hotel-rust.webp', badge: 'Rust', desc: 'Terracotta rust hotel blanket for colourful suite accents.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Rust hospitality colour' },
+    { category: 'hotel', title: 'Suite Bedroom Layer', img: 'images/about-bedroom.webp', badge: 'Suite', desc: 'A layered hotel bedroom styled with a TRISHLACOZY hospitality blanket.', gsm: '480 GSM Commercial', fabric: 'Commercial Thermal Microfiber', sizes: 'Standard Hotel Sizes', spec: 'Layered suite styling' },
 
     { category: 'kids', title: 'Cloud-Soft Nursery & Kids', img: 'images/collection-kids.webp', badge: 'Sensitive Skin Safe', desc: 'Hypoallergenic breathable blanket designed for infants and gentle nursery care.', gsm: '380 GSM Soft Touch', fabric: 'Zero-Chemical Organic Micro-Fleece', sizes: 'Crib, Nursery & Single', spec: 'Hypoallergenic, gentle on skin' },
     { category: 'kids', title: 'Peach Nursery Garden', img: 'images/soft-07.webp', badge: 'Peach Print', desc: 'Peach and cream nursery fleece with a gentle classic print.', gsm: '370 GSM Featherlight', fabric: 'Organic Micro-Fleece', sizes: 'Crib & Nursery', spec: 'Soft peach nursery' },
@@ -218,17 +222,20 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCollectionSlides(filterValue) {
     if (!collectionMarqueeEl) return;
 
-    const items = COLLECTION_CATALOG.filter((item) => (
+    let items = COLLECTION_CATALOG.filter((item) => (
       filterValue === 'all' || item.category === filterValue
     ));
     const track = collectionMarqueeEl.querySelector('.collection-marquee-track');
     track.innerHTML = '';
-    track.style.animation = 'none';
 
     if (!items.length) {
+      track.style.animation = 'none';
       track.innerHTML = '<p class="collection-marquee-empty">No pieces in this collection yet.</p>';
       return;
     }
+
+    const source = items.slice();
+    while (items.length < 16) items = items.concat(source);
 
     const group = document.createElement('div');
     group.className = 'collection-marquee-group';
@@ -240,9 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
     track.appendChild(clone);
 
     const cardWidth = window.matchMedia('(max-width: 576px)').matches ? 242 : 282;
-    track.style.setProperty('--marquee-duration', Math.max(20, (items.length * cardWidth) / 55) + 's');
+    const seconds = Math.max(16, Math.round((items.length * cardWidth) / 140));
+    track.style.animation = 'none';
     track.offsetWidth;
-    track.style.animation = '';
+    track.style.animation = 'collection-marquee ' + seconds + 's linear infinite';
   }
 
   filterBtns.forEach((btn) => {
